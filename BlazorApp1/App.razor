@@ -1,0 +1,98 @@
+﻿<IgbGrid AutoGenerate="false"
+         Id="grid"
+         Data="GridData"
+         PrimaryKey="ID"
+         Name="grid"
+         @ref="grid">
+    <IgbColumn Field="ID"
+               Header="ID"
+               Name="ID"
+               Width="150px"
+               Sortable="true">
+    </IgbColumn>
+    <IgbColumn Name="ContactName"
+               Field="ContactName"
+               Header="ContactName"
+               Width="250px"
+               Sortable="true">
+    </IgbColumn>
+    <IgbColumn Field="Country"
+               Header="Country"
+               Editable="false"
+               Width="450px"
+               Sortable="true">
+        <BodyTemplate>
+            <IgbMultiColumnComboBox @key="context.Cell.Id.RowID"
+                                    DataSource="ComboData"
+                                    Value="@(context.Cell.Value)"
+                                    Width="400px" DefaultColumnWidth=140
+                                    TextField="Name"
+                                    ValueField="@(new []{ "CountryID" })"
+                                    Fields="@(new [] {"Name", "Continent", "Pop"})"
+                                    SelectedValueChanged="(args => OnSelectedValueChanged(args, context))">
+            </IgbMultiColumnComboBox>
+        </BodyTemplate>
+    </IgbColumn>
+</IgbGrid>
+
+@code
+{
+    private IgbGrid? grid;
+    public readonly CustomersData GridData = new CustomersData();
+
+    private List<CountryItem> ComboData = new CountriesData();
+
+    private void OnSelectedValueChanged(IgbMultiColumnComboBoxValueChangedEventArgs args, IgbCellTemplateContext context)
+    {
+        var dataIndex = GridData.FindIndex(data => data.ID == context.Cell.Id.RowID);
+
+        if (dataIndex == -1) return;
+
+        var targetData = GridData[dataIndex];
+        targetData.Country = args.NewValue.ToString();
+
+        grid?.NotifyUpdateItem(GridData, dataIndex, targetData);
+    }
+
+    public class CustomersDataItem
+    {
+        public string? ID { get; set; }
+        public string? ContactName { get; set; }
+        public string? Country { get; set; }
+    }
+
+    public class CustomersData : List<CustomersDataItem>
+    {
+        public CustomersData()
+        {
+            this.Add(new(){ ID = @"ALFKI", ContactName = @"Maria Anders", Country = @"c5" });
+            this.Add(new(){ ID = @"ANATR", ContactName = @"Ana Trujillo", Country = @"c4" });
+            this.Add(new(){ ID = @"ANTON", ContactName = @"Antonio Moreno", Country = @"c2" });
+            this.Add(new(){ ID = @"AROUT", ContactName = @"Thomas Hardy", Country = @"c3" });
+            this.Add(new(){ ID = @"BERGS", ContactName = @"Christina Berglund", Country = @"c1" });
+        }
+    }
+
+    public class CountryItem
+    {
+        public string? CountryID { get; set; }
+        public string? Name { get; set; }
+        public string? Continent { get; set; }
+        public int? Pop { get; set; }
+    }
+
+    public class CountriesData : List<CountryItem>
+    {
+        public CountriesData()
+        {
+            this.Add(new() { CountryID = "c1", Continent = "Africa", Name = "Angola", Pop = 19618432 });
+            this.Add(new() { CountryID = "c2", Continent = "Asia", Name = "Bangladesh", Pop = 150493658 });
+            this.Add(new() { CountryID = "c3", Continent = "Central America", Name = "Antigua and Barbuda", Pop = 89612 });
+            this.Add(new() { CountryID = "c4", Continent = "Europe", Name = "Albania", Pop = 3215988 });
+            this.Add(new() { CountryID = "c5", Continent = "Middle East", Name = "Afghanistan", Pop = 35320445 });
+            this.Add(new() { CountryID = "c6", Continent = "North America", Name = "Canada", Pop = 34483975 });
+            this.Add(new() { CountryID = "c7", Continent = "Oceania", Name = "American Samoa", Pop = 69543 });
+            this.Add(new() { CountryID = "c8", Continent = "South America", Name = "Argentina", Pop = 40764561 });
+        }
+    }
+}
